@@ -2,7 +2,7 @@
 //TODO
 //--COMMENTS
 int main(){
-    set_window_title("Katz");
+
     //setup log file
     fpLog = fopen("log.txt", "w");
     if(fpLog == NULL){
@@ -117,7 +117,9 @@ int main(){
         show_hud(&game, &player);
 
         //display buffer to screen
-        stretch_blit(game.buffer, screen, 0, 0, game.buffer->w, game.buffer->h, 0, 0, game.screen_w * STRETCH_FACTOR, game.screen_h * STRETCH_FACTOR);
+        stretch_blit(game.buffer, screen, 0, 0, game.buffer->w,
+                     game.buffer->h, 0, 0, game.screen_w * STRETCH_FACTOR,
+                     game.screen_h * STRETCH_FACTOR);
 
         //countdown timer
         game_tick(&game, &map);

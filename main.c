@@ -1,6 +1,5 @@
 #include "ngine.h"
-//TODO
-//--COMMENTS
+
 int main(){
 
     //setup log file
