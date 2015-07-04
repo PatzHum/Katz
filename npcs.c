@@ -1,0 +1,94 @@
+#include "ngine.h"
+
+//generate non-player characters
+void gen_npcs(Game* game, TMX_map* map){
+    int i, j;
+    for (i = 0; i < map->l; ++i){
+        for(j = 0; j < map->w; ++j){
+            if(map->tmx[j][i] == 4){    //Loop through map looking for sidewalks
+                //1 in 30 chance of having a npc
+                if (rand() % (30 / game->difficulty) == 0){
+                    //standard initialization, reallocate memory
+                    game->NPCs = (Sprite*)
+                                    realloc(game->NPCs,
+                                    ++game->npc_count * sizeof(Sprite));
+                    int index = game->npc_count - 1;
+
+                    //set default locations and sizes
+                    game->NPCs[index].alive = true;
+                    game->NPCs[index].x = i * tile_size + 3;
+                    game->NPCs[index].y = j * tile_size + 3;
+                    game->NPCs[index].tx = game->NPCs[index].x;
+                    game->NPCs[index].ty = game->NPCs[index].y;
+                    game->NPCs[index].img = load_bitmap(
+                                            "res/img/npc/npc_1.bmp",
+                                            NULL);
+                    if(game->debug && game->NPCs[index].img == NULL){
+                        fprintf(fpLog, "Image Failed to load npc_1\n");
+                    }
+                    game->NPCs[index].img_w = game->NPCs[index].img->w;
+                    game->NPCs[index].img_h = game->NPCs[index].img->h;
+                    game->NPCs[index].dx = 0;
+                    game->NPCs[index].dy = 0;
+                    game->NPCs[index].speed = 2 * game->difficulty;
+                    game->NPCs[index].npc = true;
+                    game->NPCs[index].npc_update_cd = 0;
+                    game->NPCs[index].bullets = NULL;
+                    game->NPCs[index].bullet_count = 0;
+                    game->NPCs[index].bullet_cd = 0;
+                    game->NPCs[index].hp = 10;
+                    game->NPCs[index].hp_max = 10;
+                    game->NPCs[index].npc_wander_dist = game->difficulty * 50;
+
+
+                    //add blocker index
+                    game->NPCs[index].blocker_index =
+                        add_blocker(
+                            map,
+                            game->NPCs[index].x,
+                            game->NPCs[index].y,
+                            game->NPCs[index].x + game->NPCs[index].img_w,
+                            game->NPCs[index].y + game->NPCs[index].img_h
+                        );
+                    check_collisions(game, map, &game->NPCs[index],
+                                     game->NPCs[index].blocker_index);
+                }
+            }
+        }
+    }
+}END_OF_FUNCTION(gen_npcs);
+
+void npc_sequence(Game* game, TMX_map* map){
+    int i = 0;
+    //loop through npcs
+    for(; i < game->npc_count; ++i){
+        if (!game->NPCs[i].alive){  //check if npc is alive
+            sprite_sequence(game, &game->NPCs[i], map, false);
+            continue;
+        }
+        //call sprite sequence
+        sprite_sequence(game, &game->NPCs[i], map, true);
+        if(game->NPCs[i].npc_update_cd){
+            game->NPCs[i].npc_update_cd--;  //check if update npc locations
+            continue;
+        }
+        //if we update set new target x, y
+        game->NPCs[i].tx = game->NPCs[i].x + (rand() %
+                                              game->NPCs[i].npc_wander_dist
+                                              - game->NPCs[i].npc_wander_dist
+                                              / 2);
+        game->NPCs[i].ty = game->NPCs[i].y + (rand() %
+                                              game->NPCs[i].npc_wander_dist
+                                              - game->NPCs[i].npc_wander_dist
+                                              / 2);
+        //get distance to target point
+        float dist_to_tp = get_dist(game->NPCs[i].x,
+                                              game->NPCs[i].y,
+                                              game->NPCs[i].tx,
+                                              game->NPCs[i].ty);
+        //calc new velocities
+        calc_velocity(&game->NPCs[i], dist_to_tp);
+        game->NPCs[i].ldist = dist_to_tp;
+        game->NPCs[i].npc_update_cd = rand() % 100 + 30;
+    }
+}END_OF_FUNCTION(npc_sequence);

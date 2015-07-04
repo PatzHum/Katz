@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Debug" />
+	<File name="sprites.c" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1505" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="init.c" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4734" topLine="106" />
+		</Cursor>
+	</File>
+	<File name="cars.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="847" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="maps.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1727" topLine="30" />
+		</Cursor>
+	</File>
+	<File name="ngine.h" open="1" top="1" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="473" topLine="27" />
+		</Cursor>
+	</File>
+	<File name="utils.c" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="5313" topLine="29" />
+		</Cursor>
+	</File>
+	<File name="overlays.c" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="205" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="gats.c" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="4018" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="hud.c" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="412" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="main.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="454" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="npcs.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2712" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="blockers.c" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="8452" topLine="73" />
+		</Cursor>
+	</File>
+	<File name="res\settings" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="66" topLine="0" />
+		</Cursor>
+	</File>
+</CodeBlocks_layout_file>

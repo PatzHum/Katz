@@ -1,0 +1,261 @@
+Ngine
+
+Data Types and Related Functions
+
+1. Overlay
+
+1.1 Abstract
+
+    typedef struct{
+        BITMAP* img;    ->      Bitmap of what to display
+        int x, y;       ->      x and y location of overlay on map
+        int time;       ->      Time before the struct is destroyed
+        int speed;      ->      Vertical movement speed
+    }Overlay;
+    
+    An Overlay is a timed layer. After (int time) amount of time the struct is destroyed.
+    
+1.2 Addding Overlays
+
+    int add_overlay(Game* game, int w, int h, int x, int y, int time, int speed)
+    
+    game -> The game structure stores overlays and the new overlay is added here.
+    
+    w -> Sets the width of the layer
+    h -> Sets the height of the new layer
+    
+    x -> The x coordinate of the overlay on the map
+    y -> The y coordinate of the overlay on the map
+    
+    time -> How many game cycles before the overlay is destroyed
+    
+    speed -> Overlays can move vertically each cycle, speed is the # of pixels it will move up
+    
+    This function returns the index of the overlay added, useful for then drawing to the overlay.
+    
+1.2 Removing Overlays
+    
+    void remove_overlay(Game* game, int index)
+    
+    game -> Since the Game stores all the overlays we require it
+    
+    index -> The index of the overlay to be deleted
+    
+    This function deletes the overlay and resizes the game->overlay pointer.
+    
+1.3. Blitting Overlays
+
+    void blit_overlays(Game* game)
+    
+    This function blits all the overlays in game to the buffer.
+    
+    This function also checks if the overlay has now expired and deletes it with remove_overlay().
+
+2. Sprite
+
+2.1 Abstract
+    
+    typedef struct {
+        bool alive;     ->      Is the sprite alive
+
+        int hp;         ->      Hit points
+        int hp_max;     ->      Max hit points
+
+        float x, y;     ->      x and y coordinates on the map
+        int tx, ty;     ->      Target x and y coordinates on the map
+        float dx, dy;   ->      x and y speeds
+        int img_w, img_h;       ->      The image width and height post crop
+                                        -> This is important because the variable img below stores the entire sprite map
+        int speed;      ->      Sprite movement speed
+        float ldist;    ->      Last distance, needed for movement
+
+        int wlk_loop;   ->      Walk loop counter
+
+        BITMAP* img;    ->      The entire sprite map
+
+        float last_angle;       ->      Store the last angle for when the sprite is disabled
+
+        int blocker_index;      ->      Store the blocker index to enable or disable it
+
+        bool npc;       ->      Is the sprite a NPC (Non-Player character)
+        int npc_update_cd;      ->      For random updating
+        int npc_wander_dist;    ->      Wandering distance for NPCs
+
+        Bullet* bullets;        ->      Store sprite's bullets
+        int bullet_count;       ->      How many bullets there are
+        int bullet_cd;          ->      Bullet cooldown before re-shooting
+    }Sprite;
+    
+    A Sprite is a data type to store a character in the game.
+    
+2.1 Initialization
+
+    void player_init(Game* game, Sprite* player, TMX_map* map)
+    void car_init(Game* game, Sprite* car, TMX_map* map, int x, int y, int speed)
+    void gen_npcs(Game* game, TMX_map* map)
+    
+    All these functions take standard arguments and set arbitrary values for initializing a Sprite structure.
+    
+2.2 Sequences
+
+    void sprite_sequence(Game* game, Sprite* sprite, TMX_map* map, bool enabled)
+        Called by -> void enter_car (Game* game, Sprite* player, Sprite* car, TMX_map* map)
+        And       -> void npc_sequence(Game* game, TMX_map* map)
+        
+    sprite_sequence() is a central function which manages player movement, calls collision checking code, and blitting.
+    
+3. TMX Maps
+
+3.1 Abstract
+
+    typedef struct {
+        BITMAP* tilemap;    ->      Tilemap Image
+        BITMAP* map;        ->      Store the generated image
+
+        int ** tmx;         ->      Integer map to use in conjuction with the tilemap to generate map
+        int l,w;            ->      Size of tmx
+        
+        int** blockers;     ->      Blocker locations
+        int blockers_count;     ->      How many blockers there are
+        
+        int* blocker_values;    ->      Values in tmx that are walls
+        int blocker_val_count;  ->      Length of blocker_values
+        
+        int bgCol;      ->      Default background color of the map
+    }TMX_map;
+    
+    TMX_map or (T)ile (M)atri(X) Map is a map generated with two pieces of data, a matrix of integers and a tilemap image
+    
+    For example: 
+    
+    1 1 1 1 1
+    1 0 0 0 1
+    1 1 1 1 1
+    
+    Would create a 80 x 48 bordered rectangle   (assuming a 16 x 16 tile size)
+    
+3.2 Loading Maps
+
+    void load_map(Game* game, TMX_map* map)
+    void gen_map(TMX_map* map)
+    
+    This function loads game->active_map (a string) to map. The function gets the tilemap image and various text files to generate map->map (a bitmap).
+    
+    By looping through the map->tmx we get the corresponding tile in map->tilemap to generate map->map;
+    
+    Note: gen_map() is a condensed function that re-generates the map without having to re-load the map values and tilemap
+    
+3.3 Blockers
+
+3.3.1 Abstract
+
+    Blockers is simply a list of integer values that represent rectangles on a map.
+    ie:
+    0 0 199 0
+    0 0 0 199
+    199 0 199 199
+    0 199 199 199
+    32 1 37 1
+    32 2 32 22
+    37 2 37 22
+    33 22 36 22
+    1 25 37 26
+    1 27 1 32
+    36 27 37 43
+    2 31 28 32
+    27 33 28 43
+    29 43 35 43
+    
+    Produces various rectangles based off the coordinates (x1, y1, x2, y2)
+    
+    (x1, y1)
+            +============+
+            |            |
+            |            |
+            +============+
+                          (x2, y2)
+            
+3.3.2 Generation
+
+    void blockers_generate(int* wall_v, TMX_map* src_map)
+    
+    This function loops through the src_map->tmx to generate the src_map->blockers.
+    
+    By looping through the map it finds the top left corner of a wall and then continues down that line till there is no longer a wall.
+    Then the function loops vertically down the map until there is no longer a continuous wall downwards or the wall gets wider on both ends.
+    
+    ie.
+    
+    00000000xxxx0000000
+    00000000xxxx0000000
+    00000000xxxx0000000
+    00000000xxxxxx00000
+    00000000xxxx0000000
+    00000xxxxxxxxx00000
+    
+    The function finds where the A is below:
+    
+    00000000Axxx0000000
+    00000000xxxx0000000
+    00000000xxxx0000000
+    00000000xxxxxx00000
+    00000000xxxx0000000
+    00000xxxxxxxxx00000
+    
+    Continues along the line until it finds a non-wall value
+    00000000AAAA0000000
+    00000000xxxx0000000
+    00000000xxxx0000000
+    00000000xxxxxx00000
+    00000000xxxx0000000
+    00000xxxxxxxxx00000
+    
+    Continues vertically down
+    
+    00000000AAAA0000000
+    00000000AAAA0000000
+    00000000AAAA0000000
+    00000000AAAAxx00000
+    00000000AAAA0000000
+    00000xxxxxxxxx00000
+    
+    But the line below it gets wider on both the left and right so it stops
+    
+    Adds blocker with value
+    
+    x1 = 8
+    y1 = 0
+    x2 = 12
+    y2 = 4
+
+3.3.2 Checking for collisions
+
+    bool check_collisions(Game* game, TMX_map* map, Sprite* sprite, int except)
+    
+    Illustrated below
+    
+    COLLISION BLOCKS
+    ================
+    _____________
+    |         __|____
+    |         | |   |
+    |_________|_|   |
+              |     |
+              |_____|
+              xoverlap = 1 unit(s)
+              yoverlap = 2 unit(s)
+
+              since xoverlap is less
+              x side is blocked
+    RESULTANT BLOCKS
+    ================
+    _____________
+    |           |_______
+    |           ||     |
+    |___________||     |
+                 |     |
+                 |_____|
+    
+    The except integer is so the sprite doesn't block itself (except is the index of the blocker)
+    
+3.3.3

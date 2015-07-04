@@ -1,0 +1,75 @@
+#include "ngine.h"
+
+void car_init(Game* game, Sprite* car, TMX_map* map, int x, int y, int speed){
+    car->alive = true;
+    car->hp = 1000;
+    car->hp_max = 1000;
+    //initialize variables
+    car->x = x;
+    car->y = y;
+    car->tx = x;
+    car->ty = y;
+
+    car->speed = speed;
+
+    car->img = load_bitmap("res/img/car/car.bmp", NULL);
+    if(game->debug && car->img == NULL){
+        fprintf(fpLog, "Error loading car img.\n");
+    }
+
+    car->img_w = car->img->w;
+    car->img_h = car->img->h;
+
+    car->npc = false;
+
+    car->blocker_index = -add_blocker(map, car->x, car->y,
+                                        car->x + car->img_w,
+                                        car->y + car->img_h);
+
+    car->bullets = NULL;
+    car->bullet_count = 0;
+    car->bullet_cd = 0;
+}END_OF_FUNCTION(car_init);
+
+void enter_car (Game* game, Sprite* player, Sprite* car, TMX_map* map){
+    /*check if player presses e and;
+    the delay is okay
+    (otherwise we flicker in and out because we check keypress too much) and;
+     also the player is close enough to the car*/
+
+    if (key[KEY_E] && !game->car_switch_delay &&
+        (sprite_dist(car, player) < 35 || game->in_car)){
+
+        //reset movement
+        game->active_sprite->tx = game->active_sprite->x;
+        game->active_sprite->ty = game->active_sprite->y;
+
+        //if we're getting out of the car, set location of player
+        if(game->in_car) {
+            player->x = car->x;
+            player->y = car->y;
+            player->tx = car->x;
+            player->ty = car->y;
+
+            //set the car to have a blocker again
+            memcpy(map->blockers[-car->blocker_index], (int[4])
+                   {car->x, car->y, car->x + car->img_w,
+                    car->y + car->img_h}, 4 * sizeof(int));
+        }else{
+            //if the car is the active sprite, we set it as no blocker
+            memcpy(map->blockers[-car->blocker_index], (int[4])
+                   {-1, -1, -1, -1}, 4 * sizeof(int));
+        }
+
+        //set boolean in_car to opposite
+        game->in_car = !game->in_car;
+        //set active sprite
+        game->active_sprite = game->in_car ? car : player;
+        clear_keybuf();
+        //set delay to prevent flickering
+        game->car_switch_delay = 10;
+    }else{
+        //reduce delay if not zero
+        game->car_switch_delay = max(game->car_switch_delay - 1, 0);
+    }
+}END_OF_FUNCTION(enter_car);

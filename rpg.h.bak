@@ -1,0 +1,13 @@
+#ifndef RPG_H
+#define RPG_H
+#include "ngine.h"
+
+//cars.c
+void car_init(Game* game, Sprite* car, TMX_map* map, int x, int y, int speed);
+void enter_car (Game* game, Sprite* player, Sprite* car, TMX_map* map);
+
+//npcs.c
+void gen_npcs(Game* game, TMX_map* map);
+void npc_sequence(Game* game, TMX_map* map);
+
+#endif // RPG_H
